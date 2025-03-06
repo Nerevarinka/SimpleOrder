@@ -16,7 +16,7 @@
     <table class="table">
         <thead>
             <tr>
-                <th>
+                <th class="text-nowrap">
                     @Html.DisplayNameFor(model => model.FormattedOrderNumber)
                 </th>
                 <th>
@@ -37,7 +37,7 @@
                 <th>
                     @Html.DisplayNameFor(model => model.ShipmentDate)
                 </th>
-                <th>
+                <th class="text-nowrap">
                     Actions
                 </th>
             </tr>
@@ -46,16 +46,14 @@
             @foreach (var item in Model)
             {
                 <tr>
-                    <td>
+                    <td class="text-nowrap">
                         @Html.ActionLink(item.FormattedOrderNumber, "Details", new { Id = item.Id })
-                        @* // #fix не влезает полностью номер *@
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.SenderCity)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.SenderAddress)
-                        @* // #fix почему адрес отправителя такой широкий, а адрес получателя - узкий? *@
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.RecipientCity)
@@ -69,7 +67,7 @@
                     <td>
                         @Html.DisplayFor(modelItem => item.ShipmentDate)
                     </td>
-                    <td>
+                    <td class="text-nowrap">
                         @Html.ActionLink("Edit", "Edit", new { Id = item.Id }) |
                         @Html.ActionLink("Delete", "Delete", new { Id = item.Id })
                     </td>
