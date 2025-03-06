@@ -22,7 +22,7 @@
 
         [Required(ErrorMessage = "Required field")]
         [Range(0.001, 100_000_000, ErrorMessage = "Value is not valid for weight")]
-        [Display(Name = "Weight, kg")] // #fix 5 Грамм не могу отправить, форма создания, тут заполнить 0.05. и 0.5 тоже нельзя
+        [Display(Name = "Weight, kg")]
         public decimal Weight { get; set; }
 
         [Required(ErrorMessage = "Required field")]

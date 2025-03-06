@@ -4,6 +4,7 @@ namespace SimpleOrder
     using SimpleOrder.Models;
     using SimpleOrder.Services;
     using System.Configuration;
+    using System.Globalization;
 
     public class Program
     {
@@ -21,6 +22,11 @@ namespace SimpleOrder
             builder.Services.AddControllersWithViews();
 
             var app = builder.Build();
+
+            CultureInfo culture = new CultureInfo("en-US");
+            culture.NumberFormat.NumberDecimalSeparator = ".";
+            CultureInfo.DefaultThreadCurrentCulture = culture;
+            CultureInfo.DefaultThreadCurrentUICulture = culture;
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
