@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using SimpleOrder.Models;
+using SimpleOrder.Services;
 
 namespace SimpleOrder.Controllers
 {
@@ -13,15 +8,25 @@ namespace SimpleOrder.Controllers
     {
         public SimpleOrderContext Context { get; }
 
-        public OrdersController(SimpleOrderContext context)
+        public OrderService OrderService { get; }
+
+        public OrdersController(SimpleOrderContext context, OrderService orderService)
         {
             Context = context;
+            OrderService = orderService;
         }
 
         // GET: Orders
         public async Task<IActionResult> Index()
         {
-            return View(await Context.Orders.ToListAsync());
+            var orders = await OrderService.ReadAll();
+
+            if (orders == default)
+            {
+                return NotFound();
+            }
+
+            return View(orders);
         }
 
         // GET: Orders/Details/5
@@ -32,8 +37,8 @@ namespace SimpleOrder.Controllers
                 return NotFound();
             }
 
-            var order = await Context.Orders
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var order = await OrderService.Read(id.Value);
+
             if (order == null)
             {
                 return NotFound();
@@ -53,105 +58,134 @@ namespace SimpleOrder.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Order order)
+        public async Task<IActionResult> Create(OrderCreateViewModel order)
         {
             if (ModelState.IsValid)
             {
-                order.Id = Guid.NewGuid();
-                Context.Add(order);
-                await Context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    await OrderService.Create(order);
+
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
             }
+
             return View(order);
         }
 
-        // GET: Orders/Edit/5
-        //public async Task<IActionResult> Edit(Guid? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
+        //GET: Orders/Edit/5
+        public async Task<IActionResult> Edit(Guid? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
 
-        //    var order = await _context.Orders.FindAsync(id);
-        //    if (order == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return View(order);
-        //}
+            OrderDisplayViewModel order = null;
 
-        // POST: Orders/Edit/5
+            try
+            {
+                order = await OrderService.Read(id.Value);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+            }
+
+            OrderEditViewModel userEditModel = MapToEditViewModel(order);
+
+            return View(userEditModel);
+        }
+
+        //POST: Orders/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Edit(Guid id, Order order)
-        //{
-        //    if (id != order.Id)
-        //    {
-        //        return NotFound();
-        //    }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(Guid id, OrderEditViewModel orderNewData)
+        {
+            if (id != orderNewData.Id)
+            {
+                return NotFound();
+            }
 
-        //    if (ModelState.IsValid)
-        //    {
-        //        try
-        //        {
-        //            _context.Update(order);
-        //            await _context.SaveChangesAsync();
-        //        }
-        //        catch (DbUpdateConcurrencyException)
-        //        {
-        //            if (!OrderExists(order.Id))
-        //            {
-        //                return NotFound();
-        //            }
-        //            else
-        //            {
-        //                throw;
-        //            }
-        //        }
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    return View(order);
-        //}
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    await OrderService.Update(id, orderNewData);
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
+            }
+
+            return View(orderNewData);
+        }
 
         // GET: Orders/Delete/5
-        //public async Task<IActionResult> Delete(Guid? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    var order = await _context.Orders
-        //        .FirstOrDefaultAsync(m => m.Id == id);
-        //    if (order == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return View(order);
-        //}
-
-        // POST: Orders/Delete/5
-        //[HttpPost, ActionName("Delete")]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> DeleteConfirmed(Guid id)
-        //{
-        //    var order = await _context.Orders.FindAsync(id);
-        //    if (order != null)
-        //    {
-        //        _context.Orders.Remove(order);
-        //    }
-
-        //    await _context.SaveChangesAsync();
-        //    return RedirectToAction(nameof(Index));
-        //}
-
-        private bool OrderExists(Guid id)
+        public async Task<IActionResult> Delete(Guid? id)
         {
-            return Context.Orders.Any(e => e.Id == id);
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            OrderDisplayViewModel order = null;
+
+            try
+            {
+                order = await OrderService.Read(id.Value);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+            }
+
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            return View(order);
+        }
+
+        //POST: Orders/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        {
+            try
+            {
+                OrderDisplayViewModel entity = await OrderService.Read(id);
+                await OrderService.Delete(entity.Id);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        private OrderEditViewModel MapToEditViewModel(OrderDisplayViewModel displayViewModel)
+        {
+            return new OrderEditViewModel()
+            {
+                Id = displayViewModel.Id,
+                Number = displayViewModel.Number,
+                RecipientAddress = displayViewModel.RecipientAddress,
+                RecipientCity = displayViewModel.RecipientCity,
+                SenderAddress = displayViewModel.SenderAddress,
+                SenderCity = displayViewModel.SenderCity,
+                Weight = displayViewModel.Weight,
+                ShipmentDate = displayViewModel.ShipmentDate
+            };
         }
     }
 }
