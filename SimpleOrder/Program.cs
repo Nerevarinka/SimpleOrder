@@ -2,6 +2,7 @@ namespace SimpleOrder
 {
     using Microsoft.EntityFrameworkCore;
     using SimpleOrder.Models;
+    using SimpleOrder.Services;
     using System.Configuration;
 
     public class Program
@@ -16,6 +17,9 @@ namespace SimpleOrder
             string connection = builder.Configuration.GetConnectionString("DefaultConnection");
 
             builder.Services.AddDbContext<SimpleOrderContext>(options => options.UseNpgsql(connection));
+            builder.Services.AddTransient<OrderService>();
+            builder.Services.AddControllersWithViews();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
