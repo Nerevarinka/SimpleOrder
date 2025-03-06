@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SimpleOrder.Models;
@@ -11,9 +12,11 @@ using SimpleOrder.Models;
 namespace SimpleOrder.Migrations
 {
     [DbContext(typeof(SimpleOrderContext))]
-    partial class SimpleOrderContextModelSnapshot : ModelSnapshot
+    [Migration("20250306140346_UpdateNumberColumnAddCreatedOnColumn")]
+    partial class UpdateNumberColumnAddCreatedOnColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -56,8 +59,8 @@ namespace SimpleOrder.Migrations
                     b.Property<DateTime>("ShipmentDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<decimal>("Weight")
-                        .HasColumnType("numeric");
+                    b.Property<double>("Weight")
+                        .HasColumnType("double precision");
 
                     b.HasKey("Id");
 

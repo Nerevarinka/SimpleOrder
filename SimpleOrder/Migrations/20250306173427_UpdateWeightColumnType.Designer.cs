@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SimpleOrder.Models;
@@ -11,9 +12,11 @@ using SimpleOrder.Models;
 namespace SimpleOrder.Migrations
 {
     [DbContext(typeof(SimpleOrderContext))]
-    partial class SimpleOrderContextModelSnapshot : ModelSnapshot
+    [Migration("20250306173427_UpdateWeightColumnType")]
+    partial class UpdateWeightColumnType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

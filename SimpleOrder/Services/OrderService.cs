@@ -1,11 +1,16 @@
 ﻿namespace SimpleOrder.Services
 {
     using Microsoft.EntityFrameworkCore;
+    using SimpleOrder.Exceptions;
     using SimpleOrder.Models;
-    using System.Diagnostics.Metrics;
+    using SimpleOrder.Models.NewFolder;
 
     public class OrderService
     {
+        private const decimal MIN_WEIGHT = 0.001M;
+
+        private const decimal MAX_WEIGHT = 100_000_000M;
+
         public SimpleOrderContext Context { get; }
 
         public OrderService(SimpleOrderContext context)
@@ -26,7 +31,7 @@
 
             if (order == default)
             {
-                throw new Exception($"Order with id \"{orderId}\" not found");
+                throw new EntityNotFoundException($"Order with id \"{orderId}\" not found");
             }
 
             return MapToDisplayViewModel(order);
@@ -48,6 +53,7 @@
 
             ValidateEntity(orderData);
 
+            // Explicitly set date format to UTC for correct validation
             orderData.ShipmentDate = DateTime.SpecifyKind(orderData.ShipmentDate, DateTimeKind.Utc);
 
             Order newOrder = MapToEntity(orderData);
@@ -74,10 +80,11 @@
 
             if (order == default)
             {
-                throw new Exception($"Order with id \"{orderId}\" not found");
+                throw new EntityNotFoundException($"Order with id \"{orderId}\" not found");
             }
 
             ValidateEntity(orderNewData);
+            UpdateFieldValues(order, orderNewData);
 
             await Context.SaveChangesAsync();
         }
@@ -95,7 +102,7 @@
 
             if (order == default)
             {
-                throw new Exception($"Order with id \"{orderId}\" not found");
+                return;
             }
 
             Context.Set<Order>().Remove(order);
@@ -113,11 +120,12 @@
                 SenderAddress = order.SenderAddress,
                 SenderCity = order.SenderCity,
                 Weight = order.Weight,
+                CreatedAt = order.CreatedAt,
                 ShipmentDate = order.ShipmentDate
             };
         }
 
-        private Order MapToEntity(OrderCreateViewModel orderData)
+        private static Order MapToEntity(OrderCreateViewModel orderData)
         {
             return new Order()
             {
@@ -127,11 +135,12 @@
                 SenderAddress = orderData.SenderAddress,
                 SenderCity = orderData.SenderCity,
                 Weight = orderData.Weight,
+                CreatedAt = DateTime.UtcNow,
                 ShipmentDate = orderData.ShipmentDate
             };
         }
 
-        private void ValidateEntity(OrderViewModel orderData)
+        private static void ValidateEntity(OrderViewModel orderData)
         {
             if (string.IsNullOrEmpty(orderData.SenderCity) ||
                 string.IsNullOrEmpty(orderData.SenderAddress) ||
@@ -142,10 +151,20 @@
                 throw new ArgumentException("No value");
             }
 
-            if (orderData.Weight < 0.001 || orderData.Weight > 100_000)
+            if (orderData.Weight is < MIN_WEIGHT or > MAX_WEIGHT)
             {
                 throw new ArgumentException(nameof(orderData.Weight), "Incorrect value");
             }
+        }
+
+        private static void UpdateFieldValues(Order order, OrderEditViewModel orderNewData)
+        {
+            order.RecipientAddress = orderNewData.RecipientAddress;
+            order.RecipientCity = orderNewData.RecipientCity;
+            order.SenderAddress = orderNewData.SenderAddress;
+            order.SenderCity = orderNewData.SenderCity;
+            order.Weight = orderNewData.Weight;
+            order.ShipmentDate = orderNewData.ShipmentDate;
         }
     }
 }
