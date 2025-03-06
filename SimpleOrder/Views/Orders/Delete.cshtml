@@ -1,7 +1,9 @@
-﻿@model SimpleOrder.Models.OrderDisplayViewModel
+﻿@using SimpleOrder.Models.NewFolder
+@model OrderDisplayViewModel
 
 @{
     ViewData["Title"] = "Delete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <h3>Are you sure you want to delete this order?</h3>
@@ -10,37 +12,34 @@
 {
     @Html.AntiForgeryToken()
     @Html.ValidationSummary(true)
-
-    <fieldset>
-        <div class="form-group">
-            @Html.DisplayNameFor(model => model.Number)
-            @Html.DisplayFor(model => model.Number, additionalViewData: new { @class = "form-control" })
+    
+    <fieldset disabled>
+        <div class="mb-3">
+            <label for="@Html.DisplayNameFor(model => model.FormattedOrderNumber)" class="form-label">@Html.DisplayNameFor(model => model.FormattedOrderNumber)</label>
+            @Html.TextBoxFor(model => model.FormattedOrderNumber, new { @class = "form-control", @disabled = "disabled" })
         </div>
-        <div class="form-group">
-            @Html.LabelFor(model => model.SenderCity)
-            @Html.DisplayFor(model => model.SenderCity, additionalViewData: new { @class = "form-control" })
+                <div class="mb-3">
+            <label for="@Html.DisplayNameFor(model => model.SenderCity)" class="form-label">@Html.DisplayNameFor(model => model.SenderCity)</label>
+            @Html.TextBoxFor(model => model.SenderCity, new { @class = "form-control", @disabled = "disabled" })
         </div>
-        <div class="form-group">
-            @Html.LabelFor(model => model.SenderAddress)
-            @Html.DisplayFor(model => model.SenderAddress, additionalViewData: new { @class = "form-control" })
+        <div class="mb-3">
+            <label for="@Html.DisplayNameFor(model => model.SenderAddress)" class="form-label">@Html.DisplayNameFor(model => model.SenderAddress)</label>
+            @Html.TextBoxFor(model => model.SenderAddress, new { @class = "form-control", @disabled = "disabled" })
         </div>
-        <div class="form-group">
-            @Html.LabelFor(model => model.RecipientCity)
-            @Html.DisplayFor(model => model.RecipientCity, additionalViewData: new { @class = "form-control" })
+                <div class="mb-3">
+            <label for="@Html.DisplayNameFor(model => model.RecipientCity)" class="form-label">@Html.DisplayNameFor(model => model.RecipientCity)</label>
+            @Html.TextBoxFor(model => model.RecipientCity, new { @class = "form-control", @disabled = "disabled" })
         </div>
-        <div class="form-group">
-            @Html.LabelFor(model => model.RecipientAddress)
-            @Html.DisplayFor(model => model.RecipientAddress, additionalViewData: new { @class = "form-control" })
+        <div class="mb-3">
+            <label for="@Html.DisplayNameFor(model => model.RecipientAddress)" class="form-label">@Html.DisplayNameFor(model => model.RecipientAddress)</label>
+            @Html.TextBoxFor(model => model.RecipientAddress, new { @class = "form-control", @disabled = "disabled" })
         </div>
-        <div class="form-group">
-            @Html.LabelFor(model => model.Weight)
-            @Html.DisplayFor(model => model.Weight, additionalViewData: new { @class = "form-control" })
-        </div>
-        <div class="form-group">
-            @Html.LabelFor(model => model.ShipmentDate)
-            @Html.DisplayFor(model => model.ShipmentDate, additionalViewData: new { @class = "form-control" })
+        <div class="mb-3">
+            <label for="@Html.DisplayNameFor(model => model.ShipmentDate)" class="form-label">@Html.DisplayNameFor(model => model.ShipmentDate)</label>
+            @Html.TextBoxFor(model => model.ShipmentDate, "{0:yyyy-MM-dd}", new { @class = "form-control", @disabled = "disabled" })
         </div>
     </fieldset>
+
 
     <p>
         <button type="submit" class="btn btn-danger">

@@ -1,7 +1,9 @@
-﻿@model IEnumerable<SimpleOrder.Models.OrderDisplayViewModel>
+﻿@using SimpleOrder.Models.NewFolder
+@model IEnumerable<OrderDisplayViewModel>
 
 @{
     ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <h1>Orders</h1>
@@ -10,64 +12,69 @@
     @Html.ActionLink("Create New", "Create", "Orders", null, new { @class = "btn btn-primary" })
 </p>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Number)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SenderCity)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SenderAddress)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RecipientCity)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RecipientAddress)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Weight)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ShipmentDate)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+<div class="table-responsive">
+    <table class="table">
+        <thead>
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Number)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.SenderCity)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.SenderAddress)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RecipientCity)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RecipientAddress)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Weight)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ShipmentDate)
-                </td>
-                <td>
-                    @Html.ActionLink("Edit", "Edit", new { Id = item.Id }) |
-                    @Html.ActionLink("Details", "Details", new { Id = item.Id }) |
-                    @Html.ActionLink("Delete", "Delete", new { Id = item.Id })
-                </td>
+                <th>
+                    @Html.DisplayNameFor(model => model.FormattedOrderNumber)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.SenderCity)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.SenderAddress)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.RecipientCity)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.RecipientAddress)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Weight)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ShipmentDate)
+                </th>
+                <th>
+                    Actions
+                </th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.ActionLink(item.FormattedOrderNumber, "Details", new { Id = item.Id })
+                        @* // #fix не влезает полностью номер *@
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.SenderCity)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.SenderAddress)
+                        @* // #fix почему адрес отправителя такой широкий, а адрес получателя - узкий? *@
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.RecipientCity)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.RecipientAddress)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Weight)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ShipmentDate)
+                    </td>
+                    <td>
+                        @Html.ActionLink("Edit", "Edit", new { Id = item.Id }) |
+                        @Html.ActionLink("Delete", "Delete", new { Id = item.Id })
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
