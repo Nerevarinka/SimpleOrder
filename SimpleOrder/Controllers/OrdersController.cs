@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SimpleOrder.Exceptions;
 using SimpleOrder.Models;
+using SimpleOrder.Models.NewFolder;
 using SimpleOrder.Services;
 
 namespace SimpleOrder.Controllers
@@ -37,11 +39,19 @@ namespace SimpleOrder.Controllers
                 return NotFound();
             }
 
-            var order = await OrderService.Read(id.Value);
+            OrderDisplayViewModel order = null;
 
-            if (order == null)
+            try
+            {
+                order = await OrderService.Read(id.Value);
+            }
+            catch (EntityNotFoundException ex)
             {
                 return NotFound();
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
             }
 
             return View(order);
@@ -54,8 +64,6 @@ namespace SimpleOrder.Controllers
         }
 
         // POST: Orders/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(OrderCreateViewModel order)
@@ -65,7 +73,7 @@ namespace SimpleOrder.Controllers
                 try
                 {
                     await OrderService.Create(order);
-
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
@@ -90,6 +98,10 @@ namespace SimpleOrder.Controllers
             {
                 order = await OrderService.Read(id.Value);
             }
+            catch (EntityNotFoundException ex)
+            {
+                return NotFound();
+            }
             catch (Exception ex)
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
@@ -101,8 +113,6 @@ namespace SimpleOrder.Controllers
         }
 
         //POST: Orders/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, OrderEditViewModel orderNewData)
@@ -162,23 +172,22 @@ namespace SimpleOrder.Controllers
         {
             try
             {
-                OrderDisplayViewModel entity = await OrderService.Read(id);
-                await OrderService.Delete(entity.Id);
+                await OrderService.Delete(id);
+                return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
             }
 
-            return RedirectToAction(nameof(Index));
+            return View(id);
         }
 
-        private OrderEditViewModel MapToEditViewModel(OrderDisplayViewModel displayViewModel)
+        private static OrderEditViewModel MapToEditViewModel(OrderDisplayViewModel displayViewModel)
         {
             return new OrderEditViewModel()
             {
                 Id = displayViewModel.Id,
-                Number = displayViewModel.Number,
                 RecipientAddress = displayViewModel.RecipientAddress,
                 RecipientCity = displayViewModel.RecipientCity,
                 SenderAddress = displayViewModel.SenderAddress,

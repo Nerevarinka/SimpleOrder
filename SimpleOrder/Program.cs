@@ -32,6 +32,7 @@ namespace SimpleOrder
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseStatusCodePagesWithRedirects("/Error/404");
 
             app.UseRouting();
 
@@ -39,7 +40,7 @@ namespace SimpleOrder
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+                pattern: "{controller=Orders}/{action=Index}/{id?}");
 
             app.Run();
         }
